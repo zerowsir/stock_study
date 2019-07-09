@@ -65,16 +65,7 @@ def get_info():
 	index_info.get_data()
 
 if __name__ == '__main__':
-    threadl = []
-    t1 = threading.Thread(target=get_info)
-    t2 = threading.Thread(target=get_all_stock_data)
-    t3 = threading.Thread(target=get_all_index_data)
-    t4 = threading.Thread(target=get_all_bonus_data)
-    threadl.append(t1)
-    threadl.append(t2)
-    threadl.append(t3)
-    threadl.append(t4)
-    for x in threadl:
-	    x.start()
-    t1.join()
-    
+    get_info()
+    get_all_stock_data()
+    get_all_index_data()
+    get_all_bonus_data()

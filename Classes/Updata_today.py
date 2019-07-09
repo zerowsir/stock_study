@@ -19,18 +19,31 @@ class Update_today(object):
 	def update(self, recode):
 		self.data_df = pd.read_csv(self.file_path + symbol + '.csv',
 		                           encoding='gbk')
-		print(max(self.data_df['日期']))
-		self.data_df = self.data_df.append(Recode(recode).recode,
-		                                   ignore_index=True)
-		self.data_df = self.data_df.sort_values(by='日期')
+		trade_cal_df = pd.read_csv('F:/Stock_Data/trade_cal.csv')
+		today = datetime.date.strftime(datetime.date.today(), '%Y-%m-%d')
 		
-		# self.data_df.to_csv(self.file_path + symbol + '.csv', encoding='gbk', index=False)
+		last_date = max(self.data_df['日期'])
+		last_trade_date = trade_cal_df[trade_cal_df['cal_date'] == today]['pretrade_date'].values[0]
 		
+		trade_date = datetime.datetime.strptime(last_date, '%Y-%m-%d') + datetime.timedelta(days=1)
+		trade_date = datetime.date.strftime(trade_date, '%Y-%m-%d')
+		
+		if last_trade_date <= trade_date:
+			print('正在更新{}的数据'.format(self.symbol))
+			self.data_df = self.data_df.sort_values(by='日期')
+			recode = Recode(recode).recode
+			if max(self.data_df['日期'].values) != recode['日期']:
+				self.data_df = self.data_df.append(Recode(recode).recode,
+			                                   ignore_index=True)
+			
+				self.data_df.to_csv(self.file_path + symbol + '.csv', encoding='gbk', index=False)
+		else:
+			print('已经有多天未更新了，请使用get_data重新获取全部数据！')
 		
 class Recode(object):
 	recode = {}
 	def __init__(self, recode):
-		self.recode['日期'] = datetime.date.strftime(datetime.date.today(), '%Y%m%d')
+		self.recode['日期'] = datetime.date.strftime(datetime.date.today(), '%Y/%m/%d')
 		self.recode['股票代码'] = recode['SYMBOL']
 		self.recode['名称'] = recode['NAME']
 		self.recode['最高价'] = recode['HIGH']
@@ -54,4 +67,4 @@ for row in info_df.iterrows():
 	recode = row[1]
 	stock = Update_today(symbol)
 	stock.update(recode)
-	break
+	

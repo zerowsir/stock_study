@@ -36,7 +36,7 @@ class Info_base(object):
 		                        headers=self.HEADERS)
 		
 		data_json = json.loads(io.StringIO(response.text).read())
-		
+		print(data_json)
 		self.data = data_json['list']
 		
 		self.columns = list(self.data[0].keys())

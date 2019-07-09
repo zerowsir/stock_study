@@ -25,7 +25,7 @@ class Data(object):
 		                        params=self.PARAMS,
 		                        headers=self.HEADERS)
 		with open(self.file_path + code[1:] + '.csv', 'w', newline='') as f:
-			f.write(response.content.decode('gbk'))
+			f.write(response.text)
 		data_df = pd.read_csv(self.file_path + code[1:] + '.csv', encoding='gbk')
 		self.data_df = data_df.sort_values(by='日期', ascending=True)
 		print('{}数据处理完成！！'.format(code))
