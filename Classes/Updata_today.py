@@ -31,7 +31,6 @@ class Update_today(object):
 		if last_trade_date <= trade_date:
 			print('正在更新{}的数据'.format(self.symbol))
 			self.data_df = self.data_df.sort_values(by='日期')
-			recode = Recode(recode).recode
 			if max(self.data_df['日期'].values) != recode['日期']:
 				self.data_df = self.data_df.append(Recode(recode).recode,
 			                                   ignore_index=True)
@@ -44,6 +43,7 @@ class Recode(object):
 	recode = {}
 	def __init__(self, recode):
 		self.recode['日期'] = datetime.date.strftime(datetime.date.today(), '%Y/%m/%d')
+		print(recode)
 		self.recode['股票代码'] = recode['SYMBOL']
 		self.recode['名称'] = recode['NAME']
 		self.recode['最高价'] = recode['HIGH']
@@ -65,6 +65,7 @@ info_df = pd.read_csv('F:/Stock_Data/stock_info.csv',
 for row in info_df.iterrows():
 	symbol = '{:0>6}'.format(row[1]['SYMBOL'])
 	recode = row[1]
+	recode['SYMBOL'] = symbol
 	stock = Update_today(symbol)
 	stock.update(recode)
 	
