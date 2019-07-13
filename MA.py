@@ -8,6 +8,7 @@
 
 import pandas as pd
 import numpy as np
+from multiprocessing import Pool
 
 class data_handle(object):
 	
@@ -23,7 +24,7 @@ class data_handle(object):
 		
 	def reinstate(self, source, dest):
 		self.data_df[dest] = self.data_df[source]
-		
+		print('正在处理{}的复权数据...'.format(self.symbol))
 		# name = self.info_df['NAME'][self.info_df['SYMBOL'] == int(self.symbol)]
 		# name = name[0]
 		# self.data_df = self.data_df.drop(self.data_df[self.data_df['名称'] != name].index)
@@ -51,6 +52,7 @@ class data_handle(object):
 				                              self.data_df[dest])
 		
 	def save(self):
+		print('正在保存{}的复权数据...'.format(self.symbol))
 		self.data_df.to_csv('F:/Stock_Data/analysis/{}.csv'.format(self.symbol),
 			               encoding='gbk',
 			               index=False)
@@ -75,17 +77,34 @@ class data_handle(object):
 		self.data_df['D'] = self.data_df['D'].shift(1) * 2 / 3 + self.data_df['K'] / 3
 		self.data_df['J'] = 3 * self.data_df['D'] - 2 * self.data_df['K']
 		
-		
-def main():
-	data = data_handle('000001')
-	data.reinstate('收盘价', '新收盘')
-	data.reinstate('开盘价', '新开盘')
-	data.reinstate('最高价', '新最高')
-	data.reinstate('最低价', '新最低')
-	data.cal_MA('新收盘')
-	data.MACD('新收盘')
-	data.KDJ('新收盘', 9)
+def rein(symbol):
+	data = data_handle(symbol)
+	data.reinstate('收盘价', 'Adj Close')
 	data.save()
+	print('{}的复权数据处理完成！'.format(symbol))
+	
+def main():
+	info_df = pd.read_csv('F:/Stock_Data/stock_info.csv',
+	                      encoding='gbk')
+	symbols = info_df['SYMBOL'].values
+	pool = Pool(10)
+	for symbol in symbols:
+		symbol = '{:0>6}'.format(symbol)
+		pool.apply_async(func=rein, args=(symbol,))
+	pool.close()
+	pool.join()
+	print('全部复权数据处理完成...')
+	
+	
+	# data = data_handle('000001')
+	# data.reinstate('收盘价', 'Adj Close')
+	# data.reinstate('开盘价', '新开盘')
+	# data.reinstate('最高价', '新最高')
+	# data.reinstate('最低价', '新最低')
+	# data.cal_MA('新收盘')
+	# data.MACD('新收盘')
+	# data.KDJ('新收盘', 9)
+	# data.save()
 	
 if __name__ == '__main__':
     main()
