@@ -29,7 +29,8 @@ class convert_to_PyAlgoTrade(object):
 		data_df.columns = self.columns
 		
 		data_df.to_csv(self.destination_path + self.symbol + '.csv',
-		               encoding='gbk')
+		               encoding='gbk',
+		               index=False)
 
 def convert_PyAloTrade(symbol):
 	print('正在转换{}的数据...'.format(symbol))
